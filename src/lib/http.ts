@@ -36,8 +36,14 @@ export function isSameOriginRequest(request: Request): boolean {
       request.headers.get("x-forwarded-host") ??
       request.headers.get("host") ??
       new URL(request.url).host;
+    const proto =
+      request.headers.get("x-forwarded-proto") ??
+      new URL(request.url).protocol.replace(/:$/, "");
     try {
-      if (new URL(origin).host !== host) return false;
+      const o = new URL(origin);
+      // Same-origin means scheme AND host; an http origin is not same-origin
+      // with an https endpoint.
+      if (o.host !== host || o.protocol !== `${proto}:`) return false;
     } catch {
       return false;
     }

@@ -165,4 +165,27 @@ describe("isSameOriginRequest", () => {
     expect(isSameOriginRequest(make({ "sec-fetch-site": "same-site" }))).toBe(false);
     expect(isSameOriginRequest(make({ origin: "not a url" }))).toBe(false);
   });
+
+  it("rejects a cross-scheme origin even when the host matches", () => {
+    // http page must not write to the https endpoint on the same host.
+    expect(isSameOriginRequest(make({ origin: "https://localhost:3000" }))).toBe(false);
+    expect(
+      isSameOriginRequest(
+        make({
+          origin: "https://app.example",
+          "x-forwarded-host": "app.example",
+          "x-forwarded-proto": "https",
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      isSameOriginRequest(
+        make({
+          origin: "http://app.example",
+          "x-forwarded-host": "app.example",
+          "x-forwarded-proto": "https",
+        }),
+      ),
+    ).toBe(false);
+  });
 });
