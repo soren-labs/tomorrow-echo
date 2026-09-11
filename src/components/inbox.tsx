@@ -150,10 +150,18 @@ export function Inbox() {
 
   async function handleSignOut() {
     setSigningOut(true);
+    setNotice(null);
     try {
-      await authClient.signOut();
-    } finally {
+      const result = await authClient.signOut();
+      if (result.error) {
+        setNotice({ kind: "err", text: "退出失败，请稍后重试。" });
+        return;
+      }
       router.replace("/");
+    } catch {
+      setNotice({ kind: "err", text: "退出失败，请检查网络后重试。" });
+    } finally {
+      setSigningOut(false);
     }
   }
 

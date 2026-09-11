@@ -5,8 +5,12 @@
 import { sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 
-process.env.DATABASE_URL ??=
-  "postgres://postgres:postgres@localhost:5432/tomorrow_echo_test";
+import { resolveTestDatabaseUrl } from "./test-db";
+
+// Fail closed: this suite truncates all tables, so it may only ever run
+// against an explicitly designated disposable database. DATABASE_URL is
+// never inherited — an exported production URL must not leak into tests.
+process.env.DATABASE_URL = resolveTestDatabaseUrl(process.env);
 process.env.BETTER_AUTH_SECRET ??=
   "tomorrow-echo-test-secret-0123456789abcdef";
 process.env.BETTER_AUTH_URL ??= "http://localhost:3000";

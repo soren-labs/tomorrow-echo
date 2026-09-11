@@ -18,3 +18,34 @@ jobs:
           if [ -d tests ]; then
             python -m unittest discover -s tests -v
           fi
+  app:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tomorrow_echo_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      # Disposable CI-only test database; never points at a real database.
+      # tests/backend refuses to run unless this is set to a local *test* DB.
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/tomorrow_echo_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - name: Unit + Postgres integration tests
+        run: npm test
+      - run: npm run build

@@ -83,17 +83,26 @@ Migrations are generated with `npx drizzle-kit generate` from
 
 ### Local test database
 
+Backend tests use a dedicated, disposable database selected by
+`TEST_DATABASE_URL` (see `.env.test.example`) — `DATABASE_URL` is never
+inherited, so an exported production URL cannot leak into the suite.
+`tests/backend/test-db.ts` fails closed unless the URL is a `postgres://`
+DSN on a loopback host (`localhost`/`127.0.0.1`/`::1`) whose database name
+contains `test`. The suite migrates and TRUNCATEs every auth and business
+table, so it must never run against a deployed or shared database.
+
 Any throwaway Postgres works, e.g.:
 
 ```bash
 docker run -d --name te-pg -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=tomorrow_echo_test -p 5432:5432 postgres:16-alpine
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/tomorrow_echo_test \
-  npm run db:migrate
+TEST_DATABASE_URL=postgres://postgres:postgres@localhost:5432/tomorrow_echo_test \
+  npm test
 ```
 
-Tests default `DATABASE_URL` to that local DSN when unset, and set a
-test-only `BETTER_AUTH_SECRET`/`BETTER_AUTH_URL`; each test file
-re-migrates and truncates between cases. Integration tests drive the real
-Better Auth handler (`sign-up/email`, `sign-in/email`, `sign-out`) plus
-the real route handlers — no mocks.
+CI provides the same database via a `postgres:16-alpine` service container
+(`.github/workflows/ci.yml`). Test-only `BETTER_AUTH_SECRET`/
+`BETTER_AUTH_URL` defaults are set inside `tests/backend/helpers.ts`; each
+test file re-migrates and truncates between cases. Integration tests drive
+the real Better Auth handler (`sign-up/email`, `sign-in/email`, `sign-out`)
+plus the real route handlers — no mocks.
