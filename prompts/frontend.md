@@ -1,0 +1,7 @@
+Implement the FRONTEND workstream for https://github.com/soren-labs/tomorrow-echo from main on branch devin/frontend. Read AGENTS.md, docs/SPEC.md, docs/CONTRACT.md, docs/WORKSTREAMS.md and docs/ACCEPTANCE.md. Build the UI, not another plan.
+
+Use the organization's API default SWE-2 Max. Do not switch models or spawn child sessions/subagents. You are working concurrently with a backend agent; follow file ownership and do not revert their work. Root dependencies/configs and src/contracts.ts are fixed. Use the installed packages.
+
+Implement the Chinese paper/postmark visual design, landing, registration/login via the real Better Auth client, private inbox, new prediction form, state filters, countdown/refetch, settlement and summary stats against the exact frozen API. Handle 401/409, loading/empty/error/success, mobile and keyboard use. Backend APIs are being built in parallel, so do not implement their routes or wait for them. Any browser mocks must live only in test fixtures, never the application. No additional features or infrastructure.
+
+Run npm run typecheck and npm run build. Add useful frontend tests if needed without touching backend ownership. Capture 390px/1440px UI evidence when feasible. Write docs/FRONTEND.md with tests, screenshots and integration notes. Push your branch and open one public ready-for-review PR against main. Do not merge or deploy. Finish with structured output phase=ready_for_integration, branch, pr_url, tests_passed, blockers, model_observed (null if not visible).
