@@ -123,6 +123,8 @@ def start(role, run_name, cap, extra=None):
             }, "required": ["phase", "branch", "pr_url", "tests_passed", "blockers", "model_observed"]
         }
     }
+    if os.environ.get("DEVIN_CREATE_AS_USER_ID"):
+        body["create_as_user_id"] = os.environ["DEVIN_CREATE_AS_USER_ID"]
     # API has no documented idempotency key. Reserve before POST and NEVER auto-retry.
     # If the response is lost, inspect the session list by this unique title first.
     private_json(intent, {"created_at": now(), "principal": principal, "request": body}, exclusive=True)

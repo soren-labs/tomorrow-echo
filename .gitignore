@@ -10,4 +10,5 @@ test-results/
 artifacts/
 __pycache__/
 *.pyc
+*.tsbuildinfo
 .DS_Store

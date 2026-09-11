@@ -21,6 +21,7 @@
 
 ```bash
 source ~/.config/devin/env
+export DEVIN_CREATE_AS_USER_ID='your-verified-devin-user-id'
 python3 tools/devin_benchmark.py start frontend --run trial-20260911 --cap 10
 python3 tools/devin_benchmark.py start backend --run trial-20260911 --cap 10
 # 两者运行可重叠；分别记录返回 ID。
@@ -30,6 +31,8 @@ python3 tools/devin_benchmark.py start integration --run trial-20260911 --cap 10
 ```
 
 API 没有记录在此版本文档中的创建幂等 key。脚本在 POST 前以独占方式保存 intent，失败后禁止同名重复启动；超时必须先查会话列表，不能删除标记后盲目重试。状态查询只读，不唤醒会话；send 会恢复暂停会话。
+
+本轮通过组织 members API 核对个人用户，并设置 `DEVIN_CREATE_AS_USER_ID`，由 v3 的 `create_as_user_id` 把会话归到该用户。个人 ID 只保存在本地运行记录，不硬编码入公共仓库。若权限拒绝，不能静默改为 service-user 计费。
 
 ## 记录什么
 
