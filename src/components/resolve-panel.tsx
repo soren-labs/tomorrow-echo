@@ -62,7 +62,6 @@ export function ResolvePanel({ capsule, pending, onResolve }: Props) {
           id={`rf-${capsule.id}`}
           className="input min-h-14"
           value={reflection}
-          maxLength={REFLECTION_MAX}
           onChange={(e) => setReflection(e.target.value)}
           placeholder="哪里想对了，哪里想错了？"
           disabled={pending}

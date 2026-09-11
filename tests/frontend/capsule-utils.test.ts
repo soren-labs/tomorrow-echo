@@ -59,6 +59,14 @@ describe("validation", () => {
     expect(validateTitle("x".repeat(121))).toBeTruthy();
     expect(validateTitle("今晚写完周报")).toBeNull();
   });
+  it("counts supplementary-plane characters, not UTF-16 units", () => {
+    expect(validateTitle("🙂".repeat(120))).toBeNull();
+    expect(validateTitle("🙂".repeat(121))).toBeTruthy();
+    expect(validateNote("🙂".repeat(1000))).toBeNull();
+    expect(validateNote("🙂".repeat(1001))).toBeTruthy();
+    expect(validateReflection("🙂".repeat(500))).toBeNull();
+    expect(validateReflection("🙂".repeat(501))).toBeTruthy();
+  });
   it("rejects notes over 1000 chars", () => {
     expect(validateNote("x".repeat(1001))).toBeTruthy();
     expect(validateNote("")).toBeNull();

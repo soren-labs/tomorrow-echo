@@ -81,6 +81,22 @@ describe("createCapsuleSchema", () => {
     expect(createCapsuleSchema.parse(valid)).toEqual({ ...valid, note: null });
   });
 
+  // Postgres char_length() counts characters; 61 emoji are 61 characters
+  // but 122 UTF-16 code units, so a .length-based check would reject them.
+  it.each([
+    [{ ...valid, title: "🙂".repeat(120) }],
+    [{ ...valid, note: "🙂".repeat(1000) }],
+  ])("accepts in-limit supplementary-plane input %j", (payload) => {
+    expect(createCapsuleSchema.safeParse(payload).success).toBe(true);
+  });
+
+  it.each([
+    [{ ...valid, title: "🙂".repeat(121) }],
+    [{ ...valid, note: "🙂".repeat(1001) }],
+  ])("rejects over-limit supplementary-plane input %j", (payload) => {
+    expect(createCapsuleSchema.safeParse(payload).success).toBe(false);
+  });
+
   it.each([
     [{ ...valid, probability: -1 }],
     [{ ...valid, probability: 101 }],
@@ -104,6 +120,7 @@ describe("resolveCapsuleSchema", () => {
   it.each([
     [{ outcome: true }],
     [{ outcome: false, reflection: "复盘" }],
+    [{ outcome: true, reflection: "🙂".repeat(500) }],
   ])("accepts %j", (payload) => {
     expect(resolveCapsuleSchema.safeParse(payload).success).toBe(true);
   });
@@ -113,6 +130,7 @@ describe("resolveCapsuleSchema", () => {
     [{ outcome: 1 }],
     [{}],
     [{ outcome: true, reflection: "x".repeat(501) }],
+    [{ outcome: true, reflection: "🙂".repeat(501) }],
     [{ outcome: true, userId: "attacker" }],
     [{ outcome: true, resolvedAt: "2000-01-01T00:00:00Z" }],
   ])("rejects %j", (payload) => {

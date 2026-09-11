@@ -40,6 +40,8 @@ export function Inbox() {
   const offsetRef = useRef(0);
   const refreshingRef = useRef(false);
   const lastAutoRefreshRef = useRef(0);
+  // Bumped whenever a create/resolve lands locally.
+  const mutationSeqRef = useRef(0);
 
   const nowMs = useNow(offsetMs, 1000);
 
@@ -50,8 +52,12 @@ export function Inbox() {
   const refresh = useCallback(async () => {
     if (refreshingRef.current) return;
     refreshingRef.current = true;
+    const mutationsAtStart = mutationSeqRef.current;
     try {
       const [list, s] = await Promise.all([api.listCapsules(), api.stats()]);
+      // A create/resolve landed mid-flight; its state is fresher than this
+      // response, so applying it would visually revert the mutation.
+      if (mutationSeqRef.current !== mutationsAtStart) return;
       setCapsules(list.capsules);
       setStats(s);
       const off = clockOffsetMs(list.serverNow);
@@ -59,6 +65,7 @@ export function Inbox() {
       setOffsetMs(off);
       setLoadState("ready");
     } catch (e) {
+      if (mutationSeqRef.current !== mutationsAtStart) return;
       if (e instanceof ApiRequestError && e.status === 401) {
         goLogin();
         return;
@@ -107,6 +114,7 @@ export function Inbox() {
     setNotice(null);
     try {
       const res = await api.createCapsule(input);
+      mutationSeqRef.current += 1;
       const off = clockOffsetMs(res.serverNow);
       offsetRef.current = off;
       setOffsetMs(off);
@@ -133,6 +141,7 @@ export function Inbox() {
     setNotice(null);
     try {
       const res = await api.resolveCapsule(capsule.id, { outcome, reflection });
+      mutationSeqRef.current += 1;
       setCapsules((prev) => prev.map((c) => (c.id === res.capsule.id ? res.capsule : c)));
       setNotice({ kind: "ok", text: `已结算，本条得分 ${res.capsule.score ?? "—"} 分。` });
       void api.stats().then(setStats).catch(() => {});

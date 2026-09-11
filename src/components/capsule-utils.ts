@@ -69,15 +69,18 @@ export function formatStampDate(iso: string): string {
   return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`;
 }
 
+// 与服务端 char_length() 对齐：按字符数而非 UTF-16 码元计数
+const charLength = (value: string) => Array.from(value).length;
+
 export function validateTitle(title: string): string | null {
-  const len = title.trim().length;
+  const len = charLength(title.trim());
   if (len === 0) return "请写下这条预测的标题";
   if (len > TITLE_MAX) return `标题最长 ${TITLE_MAX} 字`;
   return null;
 }
 
 export function validateNote(note: string): string | null {
-  if (note.length > NOTE_MAX) return `说明最长 ${NOTE_MAX} 字`;
+  if (charLength(note) > NOTE_MAX) return `说明最长 ${NOTE_MAX} 字`;
   return null;
 }
 
@@ -94,7 +97,7 @@ export function validateDelay(delay: number): delay is DelaySeconds {
 }
 
 export function validateReflection(text: string): string | null {
-  if (text.length > REFLECTION_MAX) return `复盘最长 ${REFLECTION_MAX} 字`;
+  if (charLength(text) > REFLECTION_MAX) return `复盘最长 ${REFLECTION_MAX} 字`;
   return null;
 }
 

@@ -60,7 +60,6 @@ export function CapsuleForm({ pending, onSubmit }: Props) {
           id="cf-title"
           className="input"
           value={title}
-          maxLength={TITLE_MAX}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="例如：今晚 23:00 前写完周报"
           required
@@ -76,7 +75,6 @@ export function CapsuleForm({ pending, onSubmit }: Props) {
           id="cf-note"
           className="input min-h-20"
           value={note}
-          maxLength={NOTE_MAX}
           onChange={(e) => setNote(e.target.value)}
           placeholder="为什么这样判断？（封存后不可修改）"
           disabled={pending}
