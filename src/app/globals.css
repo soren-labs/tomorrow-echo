@@ -160,6 +160,11 @@ body {
     color: var(--color-seal-deep);
     border-color: var(--color-seal);
   }
+  /* chip 包裹 sr-only 的 radio 时，把焦点环画在 chip 上 */
+  .chip:focus-within {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
 
   /* 倒计时数字 */
   .tnum {
